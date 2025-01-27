@@ -261,6 +261,8 @@ spec:
             set -e 
             echo $WORKSPACE
             ls $WORKSPACE
+            ls $WORKSPACE/source
+            tree $WORKSPACE
 
     - name: build-container
       params:
