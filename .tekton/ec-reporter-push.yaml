@@ -25,6 +25,8 @@ spec:
     value: quay.io/redhat-user-workloads/rhoai-tenant/ec-reporter:{{revision}}
   - name: dockerfile
     value: Dockerfile
+  - name: TOOLS_REPO_SSH_SECRET
+    value: rhods-devops-infra-git
   - name: SNAPSHOT_TASK_SECRET
     value: snapshot-task-secret
   pipelineSpec:
@@ -214,7 +216,7 @@ spec:
     - name: clone-tools-repository
       params:
       - name: url
-        value: "https://github.com/red-hat-data-services/rhods-devops-infra"
+        value: "git@github.com:red-hat-data-services/rhods-devops-infra.git"
       - name: revision
         value: "snapshot-dev"
       - name: sparseCheckoutDirectories
@@ -238,8 +240,9 @@ spec:
       workspaces:
       - name: output
         workspace: workspace
-      - name: basic-auth
-        workspace: git-auth
+      - name: ssh-directory
+        secret:
+          secretName: $(params.TOOLS_REPO_SSH_SECRET)
     - name: make-snapshot
       runAfter:
       - clone-tools-repository
