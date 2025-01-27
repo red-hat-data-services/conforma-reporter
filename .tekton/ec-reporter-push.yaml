@@ -248,21 +248,40 @@ spec:
       workspaces:
       - name: source
         workspace: tools-workspace
+      params:
+      - name: SNAPSHOT_TASK_SECRET
+        value: "$(params.SNAPSHOT_TASK_SECRET)"
       taskSpec:
         description: generate a snapshot for RHOAI
         steps:
-        - name: test
+        - name: make-snapshot
           image: registry.access.redhat.com/ubi8/ubi-minimal
           env:
-          - name: WORKSPACE
-            value: $(workspaces.source.path)
+          - name: WORKSPACE_DIR
+            value: $(workspaces.source.path)/source
+          - name: QUAY_API_TOKEN
+            valueFrom: 
+              secretKeyRef:
+                name: $(params.SNAPSHOT_TASK_SECRET)
+                key: "quay-api-token"
+          - name: K8S_SA_TOKEN
+            valueFrom: 
+              secretKeyRef:
+                name: $(params.SNAPSHOT_TASK_SECRET)
+                key: "k8s-sa-token"
           script: |
             #!/usr/bin/env bash
-            set -e 
-            echo $WORKSPACE
-            ls $WORKSPACE
-            ls $WORKSPACE/source
-            tree $WORKSPACE
+            set -e
+            cd $WORKSPACE_DIR/tools/snapshot-generator
+            source ./install-ubi8.sh
+ 
+            kubectl config set-credentials snapshot-sa --token=$K8S_SA_TOKEN
+            kubectl config set-cluster default --server=https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_SERVICE_PORT_HTTPS --certificate-authority="/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+            kubectl config set-context snapshot --user=snapshot-sa --cluster=default
+            kubectl config use-context snapshot
+            RHOAI_QUAY_API_TOKEN="$QUAY_API_TOKEN" bash make-nightly-snapshots.sh 2.17.0
+            ls nightly-snapshots/snapshot-components              
+            # kubectl apply -f nightly-snapshots/snapshot-components
 
     - name: build-container
       params:
