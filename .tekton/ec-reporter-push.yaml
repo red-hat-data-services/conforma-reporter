@@ -267,8 +267,8 @@ spec:
           - name: K8S_SA_TOKEN
             valueFrom: 
               secretKeyRef:
-                name: $(params.SNAPSHOT_TASK_SECRET)
-                key: "k8s-sa-token"
+                name: rhoai-sa-token-tlsk8
+                key: "token"
           script: |
             #!/usr/bin/env bash
             set -e
