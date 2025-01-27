@@ -242,7 +242,7 @@ spec:
         workspace: workspace
       - name: ssh-directory
         secret:
-          secretName: $(params.TOOLS_REPO_SSH_SECRET)
+          secretName:  rhods-devops-infra-git 
     - name: make-snapshot
       runAfter:
       - clone-tools-repository
