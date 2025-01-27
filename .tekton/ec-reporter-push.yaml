@@ -239,16 +239,15 @@ spec:
         - "true"
       workspaces:
       - name: output
-        workspace: workspace
+        workspace: tools-workspace
       - name: ssh-directory
-        secret:
-          secretName:  rhods-devops-infra-git 
+        workspace: git-ssh-auth 
     - name: make-snapshot
       runAfter:
       - clone-tools-repository
       workspaces:
       - name: source
-        workspace: workspace
+        workspace: tools-workspace
       taskSpec:
         description: generate a snapshot for RHOAI
         steps:
@@ -641,6 +640,17 @@ spec:
       optional: true
   taskRunTemplate: {}
   workspaces:
+  - name: tools-workspace
+    volumeClaimTemplate:
+      metadata:
+        creationTimestamp: null
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+      status: {}
   - name: workspace
     volumeClaimTemplate:
       metadata:
@@ -652,6 +662,9 @@ spec:
           requests:
             storage: 1Gi
       status: {}
+  - name: git-ssh-auth
+    secret:
+      secretName: $(params.TOOLS_REPO_SSH_SECRET)
   - name: git-auth
     secret:
       secretName: '{{ git_auth_secret }}'
