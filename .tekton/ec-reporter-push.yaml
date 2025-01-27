@@ -25,6 +25,8 @@ spec:
     value: quay.io/redhat-user-workloads/rhoai-tenant/ec-reporter:{{revision}}
   - name: dockerfile
     value: Dockerfile
+  - name: SNAPSHOT_TASK_SECRET
+    value: snapshot-task-secret
   pipelineSpec:
     description: |
       This pipeline is ideal for building container images from a Containerfile while reducing network traffic.
@@ -209,6 +211,53 @@ spec:
         workspace: git-auth
       - name: netrc
         workspace: netrc
+    - name: clone-tools-repository
+      params:
+      - name: url
+        value: "https://github.com/red-hat-data-services/rhods-devops-infra"
+      - name: revision
+        value: "snapshot-dev"
+      - name: sparseCheckoutDirectories
+        value: "tools/snapshot-generator,tools/send-slack-message"
+      runAfter:
+      - init
+      taskRef:
+        params:
+        - name: name
+          value: git-clone
+        - name: bundle
+          value: quay.io/konflux-ci/tekton-catalog/task-git-clone:0.1@sha256:d091a9e19567a4cbdc5acd57903c71ba71dc51d749a4ba7477e689608851e981
+        - name: kind
+          value: task
+        resolver: bundles
+      when:
+      - input: $(tasks.init.results.build)
+        operator: in
+        values:
+        - "true"
+      workspaces:
+      - name: output
+        workspace: workspace
+      - name: basic-auth
+        workspace: git-auth
+    - name: make-snapshot
+      workspaces:
+      - name: source
+        workspace: workspace
+      taskSpec:
+        description: generate a snapshot for RHOAI
+        steps:
+        - name: test
+          image: registry.access.redhat.com/ubi8/ubi-minimal
+          env:
+          - name: WORKSPACE
+            value: $(workspaces.source.path)
+          script: |
+            #!/usr/bin/env bash
+            set -e 
+            echo $WORKSPACE
+            ls $WORKSPACE
+
     - name: build-container
       params:
       - name: IMAGE
