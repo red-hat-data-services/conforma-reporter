@@ -273,7 +273,7 @@ spec:
             #!/usr/bin/env bash
             set -e
             cd $WORKSPACE_DIR/tools/snapshot-generator
-            source ./install-ubi8.sh
+            source ./ubi8-install.sh
  
             kubectl config set-credentials snapshot-sa --token=$K8S_SA_TOKEN
             kubectl config set-cluster default --server=https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_SERVICE_PORT_HTTPS --certificate-authority="/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
