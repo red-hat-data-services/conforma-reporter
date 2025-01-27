@@ -241,6 +241,8 @@ spec:
       - name: basic-auth
         workspace: git-auth
     - name: make-snapshot
+      runAfter:
+      - clone-tools-repository
       workspaces:
       - name: source
         workspace: workspace
