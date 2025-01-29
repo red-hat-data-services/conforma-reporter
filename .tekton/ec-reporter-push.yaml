@@ -257,7 +257,7 @@ spec:
         description: generate a snapshot for RHOAI
         steps:
         - name: make-snapshot
-          image: registry.access.redhat.com/ubi8
+          image: registry.access.redhat.com/ubi9-minimal
           env:
           - name: TOOLS_DIR
             value: $(workspaces.tools-source.path)/source
@@ -277,7 +277,7 @@ spec:
             #!/usr/bin/env bash
             set -e
             cd $TOOLS_DIR/tools/snapshot-generator
-            source ./ubi8-install.sh
+            source ./ubi9-minimal-install.sh
  
             kubectl config set-credentials snapshot-sa --token=$K8S_SA_TOKEN
             kubectl config set-cluster default --server=https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_SERVICE_PORT_HTTPS --certificate-authority="/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
