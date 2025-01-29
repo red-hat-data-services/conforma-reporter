@@ -284,7 +284,7 @@ spec:
             kubectl config set-context snapshot --user=snapshot-sa --cluster=default
             kubectl config use-context snapshot
 
-            cat $SOURCE_DIR/params | read version epoch
+            cat $SOURCE_DIR/params | IFS=" " read version epoch
             cat $SOURCE_DIR/params
             echo "version: $version"
             
