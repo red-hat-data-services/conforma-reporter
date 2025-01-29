@@ -283,15 +283,40 @@ spec:
             kubectl config set-cluster default --server=https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_SERVICE_PORT_HTTPS --certificate-authority="/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
             kubectl config set-context snapshot --user=snapshot-sa --cluster=default
             kubectl config use-context snapshot
-            ls $SOURCE_DIR
-            for version in $(cat $SOURCE_DIR/rhoai-versions); do
-              echo "version: $version"
-            done
-            RHOAI_QUAY_API_TOKEN="$QUAY_API_TOKEN" bash make-nightly-snapshots.sh 2.17.0
-            ls nightly-snapshots/snapshot-components              
+
+            cat $SOURCE_DIR/params | read version epoch
+            cat $SOURCE_DIR/params
+            echo "version: $version"
+            
+            version=2.17.0
+            APPLICATION=$(echo $version | awk -F '.' '{print "rhoai-v" $1 "-" $2 }')
+            ec_component_test="$APPLICATION-registry-rhoai-prod-enterprise-contract"
+            ec_fbc_test="$APPLICATION-fbc-rhoai-prod-enterprise-contract"
+            # generate component snapshot
+            RHOAI_QUAY_API_TOKEN="$QUAY_API_TOKEN" bash make-nightly-snapshots.sh "$version"
+
+            # apply and mark snapshot so that the EC gets run against it
             kubectl apply -f nightly-snapshots/snapshot-components
             snapshot_name=$(kubectl get -f nightly-snapshots/snapshot-components --no-headers | awk '{print $1}')
-            echo $snapshot_name
+            kubectl label snapshot "$snapshot_name" "test.appstudio.openshift.io/run=$ec_component_test"
+          
+            # monitor pipelinerun 
+            components_results_file=./components_results.json 
+            PIPELINE_NAME=$(./monitor_snapshot.sh "$snapshot_name" "$ec_component_test" "$components_results_file" | tail -n 1)
+            WEB_URL="https://konflux.apps.stone-prod-p02.hjvn.p1.openshiftapps.com/application-pipeline/workspaces/rhoai/applications/$APPLICATION" 
+
+            # create formatted yaml file to send to slack
+            cat "$components_results_file" | jq '[.components[] | select(.violations)] | map({name, containerImage, violations: [.violations[] | {msg} + (.metadata | {description, solution})]}) ' | yq -P > "${HOME}/component-results-slack.yaml"
+
+            # create inital slack message
+            num_errors=$(cat "$components_results_file"| jq '[.components[].violations | length] | add')
+            num_warnings=$(cat "$components_results_file" | jq '[.components[].warnings | length] | add')
+            num_error_components=$(cat "$components_results_file" | jq '[.components[] | select(.violations) | .name] | length')
+
+            MESSAGE="EC validation test $ec_component_test for $APPLICATION (<$WEB_URL/pipelineruns/$PIPELINE_NAME|$PIPELINE_NAME>) had $num_errors errors and $num_warnings warnings across $num_error_components components"
+            
+            echo $MESSAGE
+
 
     - name: build-container
       params:
