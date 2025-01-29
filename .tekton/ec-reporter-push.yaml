@@ -281,7 +281,9 @@ spec:
             kubectl config use-context snapshot
             RHOAI_QUAY_API_TOKEN="$QUAY_API_TOKEN" bash make-nightly-snapshots.sh 2.17.0
             ls nightly-snapshots/snapshot-components              
-            # kubectl apply -f nightly-snapshots/snapshot-components
+            kubectl apply -f nightly-snapshots/snapshot-components
+            snapshot_name=$(kubectl get -f nightly-snapshots/snapshot-components --no-headers | awk '{print $1}')
+            echo $snapshot_name
 
     - name: build-container
       params:
