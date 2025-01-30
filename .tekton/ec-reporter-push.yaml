@@ -275,7 +275,7 @@ spec:
                 key: "k8s-sa-token"
           script: |
             #!/usr/bin/env bash
-            set -e
+            set -eo pipefail
             cd $TOOLS_DIR/tools/snapshot-generator
             source ./ubi9-minimal-install.sh
  
@@ -283,7 +283,7 @@ spec:
             kubectl config set-cluster default --server=https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_SERVICE_PORT_HTTPS --certificate-authority="/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
             kubectl config set-context snapshot --user=snapshot-sa --cluster=default
             kubectl config use-context snapshot
-
+            
             cat $SOURCE_DIR/params | IFS=" " read version epoch
             cat $SOURCE_DIR/params
             echo "version: $version"
@@ -302,7 +302,8 @@ spec:
           
             # monitor pipelinerun 
             components_results_file=./components_results.json 
-            PIPELINE_NAME=$(./monitor_snapshot.sh "$snapshot_name" "$ec_component_test" "$components_results_file" | tail -n 1)
+            ls 
+            PIPELINE_NAME=$(bash ./monitor-snapshot.sh "$snapshot_name" "$ec_component_test" "$components_results_file" | tail -n 1)
             WEB_URL="https://konflux.apps.stone-prod-p02.hjvn.p1.openshiftapps.com/application-pipeline/workspaces/rhoai/applications/$APPLICATION" 
 
             # create formatted yaml file to send to slack
