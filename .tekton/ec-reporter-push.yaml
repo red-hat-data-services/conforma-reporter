@@ -244,6 +244,7 @@ spec:
         workspace: git-ssh-auth 
     - name: make-snapshot
       runAfter:
+      - clone-repository
       - clone-tools-repository
       workspaces:
       - name: tools-source
