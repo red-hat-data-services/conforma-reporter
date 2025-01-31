@@ -263,7 +263,7 @@ spec:
             value: $(workspaces.tools-source.path)/source
           - name: SOURCE_DIR
             value: $(workspaces.source.path)/source
-          - name: QUAY_API_TOKEN
+          - name: RHOAI_QUAY_API_TOKEN
             valueFrom: 
               secretKeyRef:
                 name: $(params.SNAPSHOT_TASK_SECRET)
@@ -293,16 +293,17 @@ spec:
             ec_component_test="$APPLICATION-registry-rhoai-prod-enterprise-contract"
             ec_fbc_test="$APPLICATION-fbc-rhoai-prod-enterprise-contract"
             # generate component snapshot
-            RHOAI_QUAY_API_TOKEN="$QUAY_API_TOKEN" bash make-nightly-snapshots.sh "$version"
+            # requires RHOAI_QUAY_API_TOKEN env var to be set
+            bash make-nightly-snapshots.sh "$version"
 
             # apply and mark snapshot so that the EC gets run against it
             kubectl apply -f nightly-snapshots/snapshot-components
             snapshot_name=$(kubectl get -f nightly-snapshots/snapshot-components --no-headers | awk '{print $1}')
+            echo kubectl label snapshot "$snapshot_name" "test.appstudio.openshift.io/run=$ec_component_test"
             kubectl label snapshot "$snapshot_name" "test.appstudio.openshift.io/run=$ec_component_test"
           
             # monitor pipelinerun 
             components_results_file=./components_results.json 
-            ls 
             PIPELINE_NAME=$(bash ./monitor-snapshot.sh "$snapshot_name" "$ec_component_test" "$components_results_file" | tail -n 1)
             WEB_URL="https://konflux.apps.stone-prod-p02.hjvn.p1.openshiftapps.com/application-pipeline/workspaces/rhoai/applications/$APPLICATION" 
 
