@@ -304,7 +304,9 @@ spec:
           
             # monitor pipelinerun 
             components_results_file=./components_results.json 
-            PIPELINE_NAME=$(bash ./monitor-snapshot.sh "$snapshot_name" "$ec_component_test" "$components_results_file" | tail -n 1)
+            bash ./monitor-snapshot.sh "$snapshot_name" "$ec_component_test" "$components_results_file" | tee ./monitor-snapshot-output.txt
+
+            PIPELINE_NAME=$(cat ./monitor-snapshot-output.txt | tail -n 1)
             WEB_URL="https://konflux.apps.stone-prod-p02.hjvn.p1.openshiftapps.com/application-pipeline/workspaces/rhoai/applications/$APPLICATION" 
 
             # create formatted yaml file to send to slack
