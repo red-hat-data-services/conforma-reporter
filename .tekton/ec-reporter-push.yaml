@@ -373,6 +373,7 @@ spec:
       runAfter:
       - prefetch-dependencies
       - make-component-snapshot
+      - make-fbc-snapshot
       taskRef:
         params:
         - name: name
