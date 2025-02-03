@@ -32,7 +32,7 @@ spec:
   - name: SLACK_BOT_SECRET
     value: "rhoai-devops-bot-slack" 
   - name: SLACK_CHANNEL
-    value: "C0883L8FARE" # "C07RGA06207" 
+    value: "C07RGA06207" 
   pipelineSpec:
     description: |
       This pipeline is ideal for building container images from a Containerfile while reducing network traffic.
@@ -224,7 +224,7 @@ spec:
       - name: url
         value: "git@github.com:red-hat-data-services/rhods-devops-infra.git"
       - name: revision
-        value: "snapshot-dev"
+        value: "main"
       - name: subdirectory
         value: "tools"
       - name: sparseCheckoutDirectories
