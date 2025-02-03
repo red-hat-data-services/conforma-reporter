@@ -250,7 +250,7 @@ spec:
         workspace: workspace
       - name: ssh-directory
         workspace: git-ssh-auth 
-    - name: make-component-snapshot
+    - name: make-snapshots
       runAfter:
       - clone-repository
       - clone-tools-repository
@@ -299,55 +299,6 @@ spec:
 
             echo "version: $VERSION"
             bash ./ec-reporter.sh 
-    - name: make-fbc-snapshot
-      runAfter:
-      - clone-repository
-      - clone-tools-repository
-      workspaces:
-      - name: source
-        workspace: workspace
-      params:
-      - name: SNAPSHOT_TASK_SECRET
-        value: "$(params.SNAPSHOT_TASK_SECRET)"
-      - name: SLACK_BOT_SECRET
-        value: "$(params.SLACK_BOT_SECRET)"
-      - name: SLACK_CHANNEL
-        value: "$(params.SLACK_CHANNEL)"
-      taskSpec:
-        description: generate a snapshot for RHOAI
-        steps:
-        - name: make-snapshot
-          image: registry.access.redhat.com/ubi9-minimal
-          env:
-          - name: TOOLS_DIR
-            value: $(workspaces.source.path)/tools
-          - name: SOURCE_DIR
-            value: $(workspaces.source.path)/source
-          - name: RHOAI_QUAY_API_TOKEN
-            valueFrom: 
-              secretKeyRef:
-                name: $(params.SNAPSHOT_TASK_SECRET)
-                key: "quay-api-token"
-          - name: K8S_SA_TOKEN
-            valueFrom: 
-              secretKeyRef:
-                name: $(params.SNAPSHOT_TASK_SECRET)
-                key: "k8s-sa-token"
-          - name: SLACK_TOKEN
-            valueFrom: 
-              secretKeyRef:
-                name: $(params.SLACK_BOT_SECRET)
-                key: "BEARER_TOKEN"
-          - name: SLACK_CHANNEL
-            value: $(params.SLACK_CHANNEL)
-          script: |
-            #!/usr/bin/env bash
-            set -eo pipefail
-            cd $TOOLS_DIR/tools/snapshot-generator
-            export VERSION=$(cat $SOURCE_DIR/params | awk '{print $1}')
-
-            echo "version: $VERSION"
-            bash ./ec-reporter.sh fbc
 
     - name: build-container
       params:
@@ -372,8 +323,7 @@ spec:
         value: $(params.build-args-file)
       runAfter:
       - prefetch-dependencies
-      - make-component-snapshot
-      - make-fbc-snapshot
+      - make-snapshots
       taskRef:
         params:
         - name: name
