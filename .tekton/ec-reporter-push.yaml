@@ -29,6 +29,10 @@ spec:
     value: rhods-devops-infra-git
   - name: SNAPSHOT_TASK_SECRET
     value: snapshot-task-secret
+  - name: SLACK_BOT_SECRET
+    value: "rhoai-devops-bot-slack" 
+  - name: SLACK_CHANNEL
+    value: "C0883L8FARE" # "C07RGA06207" 
   pipelineSpec:
     description: |
       This pipeline is ideal for building container images from a Containerfile while reducing network traffic.
@@ -256,6 +260,10 @@ spec:
       params:
       - name: SNAPSHOT_TASK_SECRET
         value: "$(params.SNAPSHOT_TASK_SECRET)"
+      - name: SLACK_BOT_SECRET
+        value: "$(params.SLACK_BOT_SECRET)"
+      - name: SLACK_CHANNEL
+        value: "$(params.SLACK_CHANNEL)"
       taskSpec:
         description: generate a snapshot for RHOAI
         steps:
@@ -276,6 +284,13 @@ spec:
               secretKeyRef:
                 name: $(params.SNAPSHOT_TASK_SECRET)
                 key: "k8s-sa-token"
+          - name: SLACK_TOKEN
+            valueFrom: 
+              secretKeyRef:
+                name: $(params.SLACK_BOT_SECRET)
+                key: "BEARER_TOKEN"
+          - name: SLACK_CHANNEL
+            value: $(params.SLACK_CHANNEL)
           script: |
             #!/usr/bin/env bash
             set -eo pipefail
@@ -294,6 +309,10 @@ spec:
       params:
       - name: SNAPSHOT_TASK_SECRET
         value: "$(params.SNAPSHOT_TASK_SECRET)"
+      - name: SLACK_BOT_SECRET
+        value: "$(params.SLACK_BOT_SECRET)"
+      - name: SLACK_CHANNEL
+        value: "$(params.SLACK_CHANNEL)"
       taskSpec:
         description: generate a snapshot for RHOAI
         steps:
@@ -314,6 +333,13 @@ spec:
               secretKeyRef:
                 name: $(params.SNAPSHOT_TASK_SECRET)
                 key: "k8s-sa-token"
+          - name: SLACK_TOKEN
+            valueFrom: 
+              secretKeyRef:
+                name: $(params.SLACK_BOT_SECRET)
+                key: "BEARER_TOKEN"
+          - name: SLACK_CHANNEL
+            value: $(params.SLACK_CHANNEL)
           script: |
             #!/usr/bin/env bash
             set -eo pipefail
