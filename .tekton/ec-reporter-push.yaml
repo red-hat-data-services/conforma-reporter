@@ -228,7 +228,7 @@ spec:
       - name: subdirectory
         value: "tools"
       - name: sparseCheckoutDirectories
-        value: "tools/snapshot-generator,tools/send-slack-message"
+        value: "tools/rhoai-release-helper,tools/snapshot-generator,tools/send-slack-message"
       runAfter:
       - init
       taskRef:
