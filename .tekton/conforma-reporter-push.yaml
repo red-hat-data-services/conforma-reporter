@@ -2,7 +2,7 @@ apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/red-hat-data-services/EC-Reporter?rev={{revision}}
+    build.appstudio.openshift.io/repo: https://github.com/red-hat-data-services/conforma-reporter?rev={{revision}}
     build.appstudio.redhat.com/commit_sha: '{{revision}}'
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
     pipelinesascode.tekton.dev/max-keep-runs: "3"
@@ -11,9 +11,9 @@ metadata:
   creationTimestamp: null
   labels:
     appstudio.openshift.io/application: automation
-    appstudio.openshift.io/component: ec-reporter
+    appstudio.openshift.io/component: conforma-reporter
     pipelines.appstudio.openshift.io/type: build
-  name: ec-reporter-on-push
+  name: conforma-reporter-on-push
   namespace: rhoai-tenant
 spec:
   params:
@@ -22,7 +22,7 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/redhat-user-workloads/rhoai-tenant/ec-reporter:{{revision}}
+    value: quay.io/redhat-user-workloads/rhoai-tenant/conforma-reporter:{{revision}}
   - name: dockerfile
     value: Dockerfile
   - name: TOOLS_REPO_SSH_SECRET
