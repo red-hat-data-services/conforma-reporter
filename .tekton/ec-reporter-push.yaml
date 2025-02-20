@@ -224,7 +224,7 @@ spec:
       - name: url
         value: "git@github.com:red-hat-data-services/rhods-devops-infra.git"
       - name: revision
-        value: "snapshot-dev" # main
+        value: "conforma-tests-rename" # main
       - name: subdirectory
         value: "tools"
       - name: sparseCheckoutDirectories
@@ -298,7 +298,7 @@ spec:
             export VERSION=$(cat $SOURCE_DIR/params | awk '{print $1}')
 
             echo "version: $VERSION"
-            bash ./ec-reporter.sh 
+            bash ./conforma-reporter.sh 
 
     - name: build-container
       params:
