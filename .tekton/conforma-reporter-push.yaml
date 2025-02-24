@@ -295,9 +295,9 @@ spec:
             #!/usr/bin/env bash
             set -eo pipefail
             cd $TOOLS_DIR/tools/snapshot-generator
-            export VERSION=$(cat $SOURCE_DIR/params | awk '{print $1}')
+            export SNAPSHOT_TARGET=$(cat $SOURCE_DIR/params | awk '{print $1}')
 
-            echo "version: $VERSION"
+            echo "snapshot target: $SNAPSHOT_TARGET"
             bash ./conforma-reporter.sh 
 
     - name: build-container
